@@ -3,7 +3,7 @@
   "Author": "Dario",
   "Name": "Focusrite Scarlett Control",
   "Description": "Controls a local Focusrite bridge from Stream Deck",
-  "Version": "0.1.4.1",
+  "Version": "0.1.4.3",
   "UUID": "com.dario.focusrite.scarlett",
   "SDKVersion": 2,
   "CodePath": "plugin.js",

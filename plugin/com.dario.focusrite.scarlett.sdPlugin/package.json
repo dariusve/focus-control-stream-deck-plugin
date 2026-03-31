@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "Runtime dependencies for the Focusrite Stream Deck plugin",
   "dependencies": {
+    "libsodium-wrappers": "^0.8.2",
     "ws": "^8.18.3"
   }
 }

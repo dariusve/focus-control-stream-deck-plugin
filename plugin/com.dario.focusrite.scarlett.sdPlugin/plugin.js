@@ -5,9 +5,9 @@ var KEY_ACTION_UUID = 'com.dario.focusrite.scarlett.toggleair';
 var DIAL_ACTION_UUID = 'com.dario.focusrite.scarlett.airdial';
 var LOG_FILE_PATH = '/tmp/focusrite-streamdeck-plugin.log';
 var WebSocketCtor = null;
+var EmbeddedAdapterCtor = null;
+var embeddedAdapterPromise = null;
 var DEFAULT_SETTINGS = {
-  bridgeHost: '127.0.0.1',
-  bridgePort: 9123,
   command: 'toggle',
   channel: 1
 };
@@ -160,7 +160,6 @@ async function handleKeyDown(msg) {
       );
       applyAirState(msg.context, result);
       refreshMatchingContexts(settings);
-      showOk(msg.context);
     } else {
       clearPendingState(settings);
       logError('bridge returned non-ok result ' + describeError(result));
@@ -207,7 +206,6 @@ async function handleDialCycle(msg) {
     );
     applyAirState(msg.context, result);
     refreshMatchingContexts(settings);
-    showOk(msg.context);
     return;
   }
   clearPendingState(settings);
@@ -254,7 +252,6 @@ async function handleDialRotate(msg) {
     );
     applyAirState(msg.context, result);
     refreshMatchingContexts(settings);
-    showOk(msg.context);
     return;
   }
   clearPendingState(settings);
@@ -362,8 +359,6 @@ function formatAirValue(result) {
 function mergeSettings(input) {
   var source = input || {};
   return {
-    bridgeHost: normalizeBridgeHost(source.bridgeHost),
-    bridgePort: normalizePositiveInt(source.bridgePort, DEFAULT_SETTINGS.bridgePort),
     command: normalizeCommand(source.command),
     channel: normalizePositiveInt(source.channel, DEFAULT_SETTINGS.channel)
   };
@@ -416,28 +411,58 @@ async function callBridgeMode(settings, mode) {
 }
 
 async function callBridgeAction(settings, action, extraPayload) {
-  var endpoint = '/api/v1/focusrite/air/' + action;
-  var url = 'http://' + settings.bridgeHost + ':' + settings.bridgePort + endpoint;
-  var payload = Object.assign({ channel: settings.channel }, extraPayload || {});
-  var attempts = buildBridgeAttempts(url, payload);
-  var failures = [];
+  var adapter = await getEmbeddedAdapter();
+  var channel = settings.channel;
 
-  for (var i = 0; i < attempts.length; i += 1) {
-    var attempt = attempts[i];
-    try {
-      return await attempt.run();
-    } catch (error) {
-      var reason = '[' + attempt.name + '] ' + describeError(error);
-      failures.push(reason);
-      logWarn('bridge transport failed ' + reason);
-    }
+  if (action === 'toggle') {
+    return adapter.toggleAir({ channel: channel });
+  }
+  if (action === 'status') {
+    return adapter.getAirStatus({ channel: channel });
+  }
+  if (action === 'mode') {
+    return adapter.setAirMode({ channel: channel, mode: Number(extraPayload && extraPayload.mode || 0) });
+  }
+  if (action === 'enable') {
+    return adapter.enableAir({ channel: channel });
+  }
+  if (action === 'disable') {
+    return adapter.disableAir({ channel: channel });
   }
 
-  throw new Error(
-    failures.length > 0
-      ? failures.join(' | ')
-      : 'No supported HTTP transport is available in this Stream Deck runtime.'
-  );
+  throw new Error('Unsupported action: ' + action);
+}
+
+function loadEmbeddedAdapterCtor() {
+  if (EmbeddedAdapterCtor) {
+    return EmbeddedAdapterCtor;
+  }
+  if (typeof require !== 'function') {
+    throw new Error('Node runtime unavailable for embedded Focusrite adapter.');
+  }
+  if (typeof globalThis !== 'undefined' && typeof globalThis.WebSocket !== 'function') {
+    var wsModule = require('ws');
+    globalThis.WebSocket =
+      typeof wsModule === 'function' ? wsModule : wsModule && wsModule.WebSocket;
+  }
+  EmbeddedAdapterCtor = require('./embedded/focusriteAdapter').FocusriteAdapter;
+  return EmbeddedAdapterCtor;
+}
+
+function getEmbeddedAdapter() {
+  if (embeddedAdapterPromise) {
+    return embeddedAdapterPromise;
+  }
+
+  embeddedAdapterPromise = Promise.resolve().then(function () {
+    var Ctor = loadEmbeddedAdapterCtor();
+    return new Ctor({ simulate: false });
+  }).catch(function (error) {
+    embeddedAdapterPromise = null;
+    throw error;
+  });
+
+  return embeddedAdapterPromise;
 }
 
 async function callBridgeViaFetch(url, payload) {
@@ -682,11 +707,7 @@ function getMatchingContexts(settings) {
   var matches = [];
   contexts.forEach(function (meta, context) {
     var candidate = mergeSettings(meta && meta.settings);
-    if (
-      candidate.bridgeHost === target.bridgeHost &&
-      candidate.bridgePort === target.bridgePort &&
-      candidate.channel === target.channel
-    ) {
+    if (candidate.channel === target.channel) {
       matches.push(context);
     }
   });
@@ -695,7 +716,7 @@ function getMatchingContexts(settings) {
 
 function makeSettingsKey(settings) {
   var normalized = mergeSettings(settings);
-  return normalized.bridgeHost + ':' + normalized.bridgePort + ':' + normalized.channel;
+  return String(normalized.channel);
 }
 
 function setPendingState(settings, result) {
@@ -773,7 +794,7 @@ function ensureStatusPolling() {
     var uniqueByKey = new Map();
     contexts.forEach(function (meta) {
       var settings = mergeSettings(meta && meta.settings);
-      var key = settings.bridgeHost + ':' + settings.bridgePort + ':' + settings.channel;
+      var key = String(settings.channel);
       if (!uniqueByKey.has(key)) {
         uniqueByKey.set(key, settings);
       }

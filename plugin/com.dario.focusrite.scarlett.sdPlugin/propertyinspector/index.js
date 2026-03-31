@@ -6,8 +6,6 @@ let actionUuid = null;
 const VALID_COMMANDS = new Set(['toggle', 'enable', 'disable']);
 
 const els = {
-  bridgeHost: document.getElementById('bridgeHost'),
-  bridgePort: document.getElementById('bridgePort'),
   command: document.getElementById('command'),
   channel: document.getElementById('channel')
 };
@@ -40,26 +38,18 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
 }
 
 function applySettings(settings) {
-  if (settings.bridgeHost) els.bridgeHost.value = settings.bridgeHost;
-  if (settings.bridgePort) els.bridgePort.value = settings.bridgePort;
   if (settings.command) els.command.value = settings.command;
   if (settings.channel) els.channel.value = settings.channel;
 }
 
 function gatherSettings() {
-  const host = els.bridgeHost.value.trim() || '127.0.0.1';
-  const port = normalizePositiveInt(els.bridgePort.value, 9123);
   const command = normalizeCommand(els.command.value);
   const channel = normalizePositiveInt(els.channel.value, 1);
 
-  els.bridgeHost.value = host;
-  els.bridgePort.value = String(port);
   els.command.value = command;
   els.channel.value = String(channel);
 
   return {
-    bridgeHost: host,
-    bridgePort: port,
     command,
     channel
   };
