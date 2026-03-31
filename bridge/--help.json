@@ -1,0 +1,11 @@
+{
+  "createdAt": "2026-03-31T03:25:21.327Z",
+  "outputPath": "/Volumes/Dock/Data/DevProjects/SD-Focusrite/bridge/--help",
+  "interface": "lo0",
+  "port": 58322,
+  "host": null,
+  "filter": "tcp port 58322",
+  "includeDiscovery": false,
+  "durationMs": 0,
+  "tcpdumpCommand": "tcpdump -i lo0 -s 0 -U -n -w /Volumes/Dock/Data/DevProjects/SD-Focusrite/bridge/--help tcp port 58322"
+}

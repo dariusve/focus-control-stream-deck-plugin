@@ -1,0 +1,38 @@
+settings set target.process.thread.step-avoid-regexp ^(libsystem_|libdispatch|CoreFoundation|Foundation|AppKit)
+
+# Secure endpoint / auth path
+breakpoint set --name __ZN19Aes70SecureEndpoint16pathNameToHexKeyENSt3__117basic_string_viewIcNS0_11char_traitsIcEEEE
+breakpoint set --name __ZN19Aes70SecureEndpoint12isAuthorizedENSt3__117basic_string_viewIcNS0_11char_traitsIcEEEE
+breakpoint set --name __ZN19Aes70SecureEndpoint25getConnectedClientContextENSt3__117basic_string_viewIcNS0_11char_traitsIcEEEE
+
+# Remote connection workflow
+breakpoint set --name __ZN11Aes70Server29handleRemoteConnectionRequestERKNSt3__112basic_stringIcNS0_11char_traitsIcEENS0_9allocatorIcEEEES8_
+breakpoint set --name __ZN11Aes70Server32respondToRemoteConnectionRequestEN9focusrite3oca8DecisionE
+breakpoint set --name __ZN11Aes70Server37handleRemoteConnectionRequestResponseERKNSt3__112basic_stringIcNS0_11char_traitsIcEENS0_9allocatorIcEEEEb
+
+# Crypto layer (libsodium)
+breakpoint set --name _crypto_kx_server_session_keys
+breakpoint set --name _crypto_secretstream_xchacha20poly1305_init_pull
+breakpoint set --name _crypto_secretstream_xchacha20poly1305_pull
+
+# AIR control sink
+breakpoint set --name __ZN3ada31Scarlett4thGenFcpDeviceStrategy16setAirForChannelENS_8SourceIdEb
+
+breakpoint command add 1 -o "bt"
+breakpoint command add 2 -o "bt"
+breakpoint command add 3 -o "bt"
+breakpoint command add 4 -o "bt"
+breakpoint command add 5 -o "bt"
+breakpoint command add 6 -o "bt"
+breakpoint command add 7 -o "bt"
+breakpoint command add 8 -o "bt"
+breakpoint command add 9 -o "bt"
+breakpoint command add 10 -o "bt"
+
+# For arm64: x0-x7 carry first args
+breakpoint command add 1 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"
+breakpoint command add 2 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"
+breakpoint command add 3 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"
+breakpoint command add 7 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"
+breakpoint command add 8 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"
+breakpoint command add 9 -o "register read x0 x1 x2 x3 x4 x5 x6 x7"

@@ -1,0 +1,21 @@
+{
+  "name": "focusrite-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local bridge service for Stream Deck -> Focusrite Scarlett control",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "probe:ws": "node src/wsProbe.js",
+    "capture:pcap": "node src/captureSecurePcap.js",
+    "decode:pcap": "node src/decodeCapture.js",
+    "decode:pcap:secure": "node src/decodeSecurePcap.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "libsodium-wrappers": "^0.8.2"
+  }
+}
