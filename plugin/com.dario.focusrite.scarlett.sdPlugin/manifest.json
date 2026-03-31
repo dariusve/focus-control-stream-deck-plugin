@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Author": "Dario",
+  "Name": "Focusrite Scarlett Control",
+  "Description": "Controls a local Focusrite bridge from Stream Deck",
+  "Version": "0.1.4.1",
+  "UUID": "com.dario.focusrite.scarlett",
+  "SDKVersion": 2,
+  "CodePath": "plugin.js",
+  "Nodejs": {
+    "Version": "20"
+  },
+  "Icon": "imgs/pluginIcon",
+  "Category": "Focusrite",
+  "CategoryIcon": "imgs/pluginIcon",
+  "URL": "https://focusrite.com",
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "13"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Actions": [
+    {
+      "UUID": "com.dario.focusrite.scarlett.toggleair",
+      "Name": "Scarlett Air",
+      "Controllers": ["Keypad"],
+      "Tooltip": "Toggle or set AIR mode via local bridge",
+      "Icon": "imgs/actionIcon",
+      "States": [
+        {
+          "Image": "imgs/actionIcon",
+          "TitleAlignment": "middle",
+          "ShowTitle": true,
+          "TitleColor": "#ffffff"
+        }
+      ],
+      "PropertyInspectorPath": "propertyinspector/index.html"
+    },
+    {
+      "UUID": "com.dario.focusrite.scarlett.airdial",
+      "Name": "Scarlett Air Dial",
+      "Controllers": ["Encoder"],
+      "Tooltip": "Control AIR mode with Stream Deck+ dial",
+      "Icon": "imgs/actionIcon",
+      "States": [
+        {
+          "Image": "imgs/actionIcon",
+          "ShowTitle": false
+        }
+      ],
+      "Encoder": {
+        "Icon": "imgs/actionIcon",
+        "layout": "$A1",
+        "TriggerDescription": {
+          "Push": "Cycle AIR",
+          "Rotate": "Adjust AIR",
+          "Touch": "Refresh AIR"
+        }
+      },
+      "PropertyInspectorPath": "propertyinspector/index.html"
+    }
+  ]
+}

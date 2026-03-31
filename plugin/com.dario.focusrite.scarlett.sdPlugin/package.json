@@ -1,0 +1,9 @@
+{
+  "name": "focusrite-streamdeck-plugin-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Runtime dependencies for the Focusrite Stream Deck plugin",
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
