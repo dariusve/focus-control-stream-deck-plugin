@@ -329,6 +329,9 @@ async function refreshMatchingContexts(settings) {
 }
 
 function formatAirTitle(result) {
+  if (result && result.statusKnown === false) {
+    return 'AIR';
+  }
   var mode = Number(result && result.airMode);
   if (Number.isFinite(mode)) {
     if (mode <= 0) {
@@ -343,6 +346,9 @@ function formatAirTitle(result) {
 }
 
 function formatAirValue(result) {
+  if (result && result.statusKnown === false) {
+    return 'SYNC';
+  }
   var mode = Number(result && result.airMode);
   if (!Number.isFinite(mode) || mode <= 0) {
     return 'OFF';
@@ -644,6 +650,7 @@ function buildAirResult(mode) {
   var normalizedMode = mode === 2 ? 2 : mode > 0 ? 1 : 0;
   return {
     ok: true,
+    statusKnown: true,
     airEnabled: normalizedMode > 0,
     airMode: normalizedMode
   };
